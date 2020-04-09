@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/notOkayToast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_block_black_24dp"
+
+        android:text="Not Okay!"
+        android:drawableLeft="@drawable/ic_block_black_24dp"
+        android:drawableTint="@android:color/holo_red_light"
+        android:textColor="@android:color/white"
+        android:drawablePadding="10dp"
+        android:padding="16dp"
+        android:background="@android:color/darker_gray"/>
+</LinearLayout>
