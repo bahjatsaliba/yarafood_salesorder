@@ -3,6 +3,7 @@ package com.yarafood.shop.yarafoodmodul;
 import androidx.appcompat.app.AppCompatActivity;
 import entities.SalesOrderItem;
 
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,9 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -115,6 +119,31 @@ public class Item extends AppCompatActivity implements AsyncResponse {
     public void processFinish(ArrayList<SalesOrderItem> salesOrderItems) {
         this.items = salesOrderItems;
         startShowItem();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        final Dialog skipItemDialog;
+
+        switch (item.getItemId()) {
+            case R.id.action_skip:
+                skipItemDialog = new Dialog(this);
+                skipItemDialog.setContentView(R.layout.skip_item_dialog);
+                skipItemDialog.setTitle("Skip Reason");
+                skipItemDialog.show();
+
+                break;
+        }
+        return true;
     }
 
     public void startShowItem() {

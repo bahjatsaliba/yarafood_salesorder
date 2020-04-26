@@ -4,8 +4,11 @@ import Models.SalesOrderRest;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import entities.SalesOrder;
+import entities.SalesOrderItem;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -21,14 +23,17 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OrderAsyncResponse{
 
     public OrderListAdapter adapter;
+    public AlertDialog.Builder checkEditDialog;
+    public SalesOrder selectedOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        checkEditDialog = new AlertDialog.Builder(this);
+
         setContentView(R.layout.activity_main);
     }
 
@@ -39,23 +44,29 @@ public class MainActivity extends AppCompatActivity {
         httpRequestAsk.execute();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        //inflater.inflate(R.layout.me, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-
-                break;
-            default:
-                break;
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    HttpOrderStatusRequest httpOrderStatusRequest = new HttpOrderStatusRequest(MainActivity.this);
+                    httpOrderStatusRequest.execute("InProcess", String.valueOf(selectedOrder.getId()) );
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    break;
+            }
         }
-        return false;
+    };
+
+    @Override
+    public void processFinish(boolean result) {
+        if(result){
+            Intent item = new Intent(MainActivity.this, Item.class);
+            long orderIdSelected = selectedOrder.getId();
+            item.putExtra("id", orderIdSelected);
+            startActivity(item);
+        }
     }
 
     private class HttpRequestAsk extends AsyncTask<Void, Void, ResponseEntity<ArrayList<SalesOrder>>> {
@@ -68,14 +79,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected ResponseEntity<ArrayList<SalesOrder>> doInBackground(Void... Void) {
-            //setProgressBarIndeterminateVisibility(true);
             return new SalesOrderRest().findAll();
         }
 
         @Override
         protected void onPostExecute(ResponseEntity<ArrayList<SalesOrder>> salesOrderResponseEntity) {
             super.onPostExecute(salesOrderResponseEntity);
-            //setProgressBarIndeterminateVisibility(false);
+
             ArrayList<SalesOrder> salesOrderList = salesOrderResponseEntity.getBody();
             adapter = new OrderListAdapter(context, salesOrderList);
 
@@ -84,12 +94,13 @@ public class MainActivity extends AppCompatActivity {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent item = new Intent(MainActivity.this, Item.class);
+                    checkEditDialog.setMessage("Do you want to start picking this order?");
+                    checkEditDialog.setPositiveButton("Start", dialogClickListener);
+                    checkEditDialog.setNegativeButton("Cancel", dialogClickListener);
+                    AlertDialog dialog = checkEditDialog.create();
+                    checkEditDialog.show();
                     Object object = parent.getItemAtPosition(position);
-                    SalesOrder order = (SalesOrder) object;
-                    long orderIdSelected = order.getId();
-                    item.putExtra("id", orderIdSelected);
-                    startActivity(item);
+                    selectedOrder = (SalesOrder) object;
                 }
             });
         }

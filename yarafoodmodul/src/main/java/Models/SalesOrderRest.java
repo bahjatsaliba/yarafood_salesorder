@@ -1,6 +1,8 @@
 package Models;
 
 
+import android.os.Build;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,54 +21,67 @@ public class SalesOrderRest {
     private String BASE_URL = "https://yaraproductdb.herokuapp.com/";
     private RestTemplate restTemplate = new RestTemplate();
 
-    public ResponseEntity<SalesOrder> find(int id){
+    public ResponseEntity<SalesOrder> find(int id) {
 
-        try{
+        try {
             HttpEntity<String> entity = prepareHeader();
-            ResponseEntity<SalesOrder> response = restTemplate.exchange(BASE_URL+"orders/"+id, HttpMethod.GET, entity, SalesOrder.class);
-            return  response;
-        }catch(Exception e){
+            ResponseEntity<SalesOrder> response = restTemplate.exchange(BASE_URL + "orders/" + id, HttpMethod.GET, entity, SalesOrder.class);
+            return response;
+        } catch (Exception e) {
             return null;
         }
 
     }
 
-    public ResponseEntity<ArrayList<SalesOrder>> findAll(){
+    public ResponseEntity<ArrayList<SalesOrder>> findAll() {
 
-        try{
+        try {
             HttpEntity<String> entity = prepareHeader();
             ResponseEntity<ArrayList<SalesOrder>> responseEntity = restTemplate.exchange(
-                                        BASE_URL + "orders",
-                                            HttpMethod.GET,
-                                            entity,
-                                            new ParameterizedTypeReference<ArrayList<SalesOrder>>() {
-            });
-            return responseEntity;
-        }catch(Exception e){
-            return null;
-        }
-    }
-
-    public ResponseEntity<ArrayList<SalesOrderItem>> findOrderItems(long orderID){
-
-        try{
-            HttpEntity<String> entity = prepareHeader();
-            ResponseEntity<ArrayList<SalesOrderItem>> responseEntity = restTemplate.exchange(
-                    BASE_URL + "orders" + "/" + orderID + "/items",
+                    BASE_URL + "orders",
                     HttpMethod.GET,
                     entity,
-                    new ParameterizedTypeReference<ArrayList<SalesOrderItem>>() {
+                    new ParameterizedTypeReference<ArrayList<SalesOrder>>() {
                     });
             return responseEntity;
-        }catch(Exception e){
+        } catch (Exception e) {
             return null;
         }
-
     }
 
-    private HttpEntity<String> prepareHeader(){
 
-        String auth = "yarafood"+ ":"+ "Enschede2019";
+    public ResponseEntity<Boolean> SetOrderStatus(String status, String orderId) {
+
+        try {
+            HttpEntity<String> entity = prepareHeader();
+            ResponseEntity<Boolean> responseEntity = restTemplate.exchange(
+                    BASE_URL + "/updateOrderStatus?orderId="+orderId+"&status=" + status,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<Boolean>() {
+                    });
+            return responseEntity;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public ResponseEntity<ArrayList<SalesOrderItem>> findOrderItems(long orderID) throws Exception {
+
+        HttpEntity<String> entity = prepareHeader();
+        ResponseEntity<ArrayList<SalesOrderItem>> responseEntity = restTemplate.exchange(
+                BASE_URL + "orders" + "/" + orderID + "/items",
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<ArrayList<SalesOrderItem>>() {
+                });
+        return responseEntity;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private HttpEntity<String> prepareHeader() {
+
+        String auth = "yarafood" + ":" + "Enschede2019";
         String base64Credntials = Base64.getEncoder().encodeToString(auth.getBytes());
         HttpHeaders headers = new HttpHeaders();
 

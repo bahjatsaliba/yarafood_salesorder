@@ -15,16 +15,19 @@ public class Product {
 
     private int daystoexpire;
 
+    private long barcode;
+
     public Product() {
     }
 
-    public Product(String id, String description, long weight, int priority, int pieces, int daysToExpire) {
+    public Product(String id, String description, long weight, int priority, int pieces, int daysToExpire , long barcode) {
         this.id = id;
         this.description = description;
         this.weight = weight;
         this.priority = priority;
         this.pieces = pieces;
         this.daystoexpire = daysToExpire;
+        this.barcode = barcode;
     }
 
     public int getDaystoexpire() {
@@ -75,4 +78,11 @@ public class Product {
         this.weight = weight;
     }
 
+    public long getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(long barcode) {
+        this.barcode = barcode;
+    }
 }

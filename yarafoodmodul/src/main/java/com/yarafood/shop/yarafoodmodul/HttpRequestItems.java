@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import org.springframework.http.ResponseEntity;
 import java.util.ArrayList;
-
 import Models.SalesOrderRest;
-import entities.SalesOrder;
 import entities.SalesOrderItem;
 
 public class HttpRequestItems extends AsyncTask<Void, Void, ResponseEntity<ArrayList<SalesOrderItem>>> {
@@ -22,7 +20,13 @@ public class HttpRequestItems extends AsyncTask<Void, Void, ResponseEntity<Array
     @Override
     protected ResponseEntity<ArrayList<SalesOrderItem>> doInBackground(Void... Void) {
         Item item = (Item) context;
-        return new SalesOrderRest().findOrderItems( item.id );
+
+        try {
+            return new SalesOrderRest().findOrderItems( item.id );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
